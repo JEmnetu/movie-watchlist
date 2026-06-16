@@ -10,7 +10,6 @@ const Navbar = () => {
         <div className="flex gap-4 text-sm">
           <Link href="/search">Search</Link>
           <Link href="/watchlist">My Watchlist</Link>
-          <Link href="/playground">Shadcn Playground</Link>
         </div>
       </div>
     </nav>
