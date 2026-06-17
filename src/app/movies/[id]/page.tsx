@@ -1,5 +1,4 @@
-import { getMovie } from "@/lib/tmdb";
-import Image from "next/image";
+import { getMovie, getRecommendations } from "@/lib/tmdb";
 import type { Metadata } from "next";
 import {
   Card,
@@ -10,6 +9,8 @@ import {
 } from "@/components/ui/card";
 import { Poster } from "@/components/Poster";
 import { Headshot } from "@/components/Headshot";
+import { Backdrop } from "@/components/Backdrop";
+import Link from "next/link";
 
 export async function generateMetadata({
   params,
@@ -50,6 +51,8 @@ export default async function MovieDetails({
     .toSorted((a, b) => a.order - b.order)
     .slice(0, 10);
 
+  const recommendedMovies = await getRecommendations(movie.id);
+
   return (
     <>
       <div
@@ -84,11 +87,14 @@ export default async function MovieDetails({
         </div>
       </div>
 
-      <div className="px-8 pb-6">
-        <div className="font-semibold text-xl mt-4">Top Billed Cast</div>
-        <div className="flex gap-3 overflow-x-auto pb-4">
+      <div className="px-4 pb-6">
+        <div className="font-semibold text-xl mt-4 px-4">Top Billed Cast</div>
+        <div className="flex gap-3 overflow-x-auto pb-4 px-4">
           {topBilledCast.map((c) => (
-            <Card key={c.id} className="w-40 shrink-0">
+            <Card
+              key={c.id}
+              className="w-40 shrink-0 shadow-lg [--card-spacing:--spacing(3)]"
+            >
               <Headshot path={c.profile_path} alt={`${c.name} headshot`} />
               <CardHeader>
                 <CardTitle>{c.name}</CardTitle>
@@ -97,6 +103,34 @@ export default async function MovieDetails({
                 <CardDescription>{c.character}</CardDescription>
               </CardContent>
             </Card>
+          ))}
+        </div>
+      </div>
+
+      <div className="px-4">
+        <div className="font-semibold px-4">
+          If you liked <span className="text-cyan-800">{movie.title}</span>, you
+          might also enjoy...
+        </div>
+        <div className="flex items-start gap-x-4 overflow-x-auto pt-4 pb-12 px-4">
+          {recommendedMovies.results.map((r) => (
+            <Link
+              href={`/movies/${r.id}`}
+              key={r.id}
+              className="w-72 shrink-0 transition hover:scale-[1.02]"
+            >
+              <Card className=" ring-0 shadow-lg p-0 gap-0 overflow-hidden">
+                <Backdrop
+                  path={r.backdrop_path}
+                  alt={`${r.title}'s Backdrop Image`}
+                />
+                <CardHeader className="p-4">
+                  <CardTitle className="line-clamp-1 text-sm">
+                    {r.title}
+                  </CardTitle>
+                </CardHeader>
+              </Card>
+            </Link>
           ))}
         </div>
       </div>

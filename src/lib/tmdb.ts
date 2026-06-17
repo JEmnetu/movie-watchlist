@@ -11,7 +11,7 @@ export type MovieData = {
   overview: string;
   genre_ids: number[];
   poster_path: string | null;
-
+  backdrop_path: string | null;
   release_date: string;
   vote_average: number;
   vote_count: number;
@@ -36,7 +36,6 @@ export type Credits = {
 
 // MovieDetails type extends MovieData to include more fields
 export type MovieDetails = MovieData & {
-  backdrop_path?: string | null;
   runtime: number | null;
   tagline: string;
   genres: { id: number; name: string }[];
