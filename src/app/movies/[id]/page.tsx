@@ -1,16 +1,12 @@
-import { getMovie, getRecommendations } from "@/lib/tmdb";
+import { getMovie } from "@/lib/tmdb";
 import type { Metadata } from "next";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { Poster } from "@/components/Poster";
-import { Headshot } from "@/components/Headshot";
-import { Backdrop } from "@/components/Backdrop";
-import Link from "next/link";
+
+import { Suspense } from "react";
+import CastSkeleton from "@/components/CastSkeleton";
+import CastCarousel from "@/components/CastCarousel";
+import RecommendationsCarousel from "@/components/RecommendationsCarousel";
+import RecommendationsSkeleton from "@/components/RecommendationsSkeleton";
 
 export async function generateMetadata({
   params,
@@ -47,11 +43,6 @@ export default async function MovieDetails({
   const idNum = Number(id);
   const movie = await getMovie(idNum);
   const releaseYear = movie.release_date.slice(0, 4);
-  const topBilledCast = movie.credits.cast
-    .toSorted((a, b) => a.order - b.order)
-    .slice(0, 10);
-
-  const recommendedMovies = await getRecommendations(movie.id);
 
   return (
     <>
@@ -88,23 +79,9 @@ export default async function MovieDetails({
       </div>
 
       <div className="px-4 pb-6">
-        <div className="font-semibold text-xl mt-4 px-4">Top Billed Cast</div>
-        <div className="flex gap-3 overflow-x-auto pb-4 px-4">
-          {topBilledCast.map((c) => (
-            <Card
-              key={c.id}
-              className="w-40 shrink-0 shadow-lg [--card-spacing:--spacing(3)]"
-            >
-              <Headshot path={c.profile_path} alt={`${c.name} headshot`} />
-              <CardHeader>
-                <CardTitle>{c.name}</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <CardDescription>{c.character}</CardDescription>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+        <Suspense fallback={<CastSkeleton />}>
+          <CastCarousel id={movie.id} />
+        </Suspense>
       </div>
 
       <div className="px-4">
@@ -112,27 +89,9 @@ export default async function MovieDetails({
           If you liked <span className="text-cyan-800">{movie.title}</span>, you
           might also enjoy...
         </div>
-        <div className="flex items-start gap-x-4 overflow-x-auto pt-4 pb-12 px-4">
-          {recommendedMovies.results.map((r) => (
-            <Link
-              href={`/movies/${r.id}`}
-              key={r.id}
-              className="w-72 shrink-0 transition hover:scale-[1.02]"
-            >
-              <Card className=" ring-0 shadow-lg p-0 gap-0 overflow-hidden">
-                <Backdrop
-                  path={r.backdrop_path}
-                  alt={`${r.title}'s Backdrop Image`}
-                />
-                <CardHeader className="p-4">
-                  <CardTitle className="line-clamp-1 text-sm">
-                    {r.title}
-                  </CardTitle>
-                </CardHeader>
-              </Card>
-            </Link>
-          ))}
-        </div>
+        <Suspense fallback={<RecommendationsSkeleton />}>
+          <RecommendationsCarousel id={movie.id} />
+        </Suspense>
       </div>
     </>
   );
