@@ -19,7 +19,7 @@ export default function MovieGrid({ movies }: MovieGridProps) {
               <Poster
                 path={m.poster_path}
                 alt={`${m.title} poster`}
-                priority={index < 4}
+                priority={index < 6}
               />
 
               <CardHeader className="p-3">
